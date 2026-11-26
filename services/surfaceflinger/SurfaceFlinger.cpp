@@ -2418,6 +2418,11 @@ status_t SurfaceFlinger::setDisplayBrightness(const sp<IBinder>& displayToken,
                        }
                        return ftl::yield<status_t>(OK);
                    } else {
+                       // HIDL HWC has no DisplayBrightnessCommand, but the compositor's nits
+                       // still must be set or libtonemap's targetHdrSdrRatio stays 1.0 and
+                       // HDR content gets tone mapped as SDR (washed out / too bright).
+                       display->getCompositionDisplay()->setDisplayBrightness(
+                               brightness.sdrWhitePointNits, brightness.displayBrightnessNits);
                        return getHwComposer()
                                .setDisplayBrightness(display->getPhysicalId(),
                                                      brightness.displayBrightness,
